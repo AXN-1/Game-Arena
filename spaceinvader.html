@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Space Invaders</title>
+<style>
+  body { background:#111; font-family:Arial, sans-serif; text-align:center; }
+  canvas { background:#000; display:block; margin:20px auto; border:3px solid #444; border-radius:10px; }
+  button {
+    margin:8px; padding:12px 20px;
+    border:none; border-radius:8px;
+    background:linear-gradient(45deg,#06f,#0ff);
+    color:white; font-size:16px; font-weight:bold;
+    cursor:pointer; transition:0.3s;
+  }
+  button:hover { box-shadow:0 0 15px #0ff; transform:scale(1.05); }
+</style>
+</head>
+<body>
+<canvas id="space" width="480" height="320"></canvas>
+<div id="controls">
+  <button onclick="startGame()">Restart</button>
+  <button onclick="goBack()">Back</button>
+</div>
+<script>
+let canvas=document.getElementById("space"),ctx=canvas.getContext("2d");
+let shipX,bullets,enemies,score,enemyDir,gameInterval,gameOver,stars=[];
+let level=1;
+
+function init(){
+  shipX=canvas.width/2;
+  bullets=[];
+  enemies=[];
+  score=0;
+  enemyDir=1+level*0.2; // speed increases very slowly
+  gameOver=false;
+  // enemies grid increases very slowly
+  let cols=5+Math.min(level,1); // max +1 col
+  let rows=2+Math.min(level,1); // max +1 row
+  for(let i=0;i<cols;i++){
+    for(let j=0;j<rows;j++){
+      enemies.push({x:40+i*60,y:30+j*40,status:1});
+    }
+  }
+  // stars background
+  stars=[];
+  for(let i=0;i<30;i++){
+    stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2});
+  }
+}
+
+function drawStars(){
+  ctx.fillStyle="white";
+  stars.forEach(s=>{
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fill();
+    s.y+=0.1; // very slow drift
+    if(s.y>canvas.height){s.y=0;s.x=Math.random()*canvas.width;}
+  });
+}
+
+function drawShip(){
+  ctx.fillStyle="lime";
+  ctx.shadowColor="lime";
+  ctx.shadowBlur=8;
+  ctx.beginPath();
+  ctx.moveTo(shipX+20,canvas.height-25);
+  ctx.lineTo(shipX,canvas.height-10);
+  ctx.lineTo(shipX+40,canvas.height-10);
+  ctx.closePath();
+  ctx.fill();
+  ctx.shadowBlur=0;
+}
+
+function drawBullets(){
+  ctx.fillStyle="cyan";
+  ctx.shadowColor="cyan";
+  ctx.shadowBlur=8;
+  for(let b of bullets){ctx.fillRect(b.x,b.y,3,10);}
+  ctx.shadowBlur=0;
+}
+
+function drawEnemies(){
+  enemies.forEach(e=>{
+    if(e.status){
+      ctx.fillStyle="red";
+      ctx.shadowColor="red";
+      ctx.shadowBlur=6;
+      ctx.beginPath();
+      ctx.arc(e.x+15,e.y+10,12,0,Math.PI*2);
+      ctx.fill();
+      ctx.shadowBlur=0;
+    }
+  });
+}
+
+function showMessage(msg){
+  ctx.fillStyle="yellow";
+  ctx.shadowColor="yellow";
+  ctx.shadowBlur=12;
+  ctx.font="22px Arial Black";
+  ctx.fillText(msg,canvas.width/2-100,canvas.height/2);
+  ctx.shadowBlur=0;
+}
+
+function update(){
+  if(gameOver){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    drawStars();
+    showMessage("GAME OVER!");
+    clearInterval(gameInterval);
+    return;
+  }
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  drawStars();
+  drawShip();
+  drawBullets();
+  drawEnemies();
+
+  // bullets movement + collision
+  for(let b of bullets){
+    b.y-=4;
+    for(let e of enemies){
+      if(e.status && b.x>e.x && b.x<e.x+30 && b.y>e.y && b.y<e.y+20){
+        e.status=0;
+        b.y=-10;
+        score++;
+      }
+    }
+  }
+
+  // enemy movement
+  let edgeHit=false;
+  enemies.forEach(e=>{
+    if(e.status){
+      e.x+=enemyDir;
+      if(e.x<0 || e.x>canvas.width-30){edgeHit=true;}
+    }
+  });
+  if(edgeHit){
+    enemyDir*=-1;
+    enemies.forEach(e=>{
+      e.y+=10; // descend very slowly
+      if(e.y>canvas.height-40){gameOver=true;}
+    });
+  }
+
+  // score display
+  ctx.fillStyle="white";
+  ctx.font="14px Arial";
+  ctx.fillText("Score: "+score,10,20);
+  ctx.fillText("Level: "+level,400,20);
+
+  // win condition
+  if(score==enemies.length){
+    clearInterval(gameInterval);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    drawStars();
+    showMessage("LEVEL "+level+" COMPLETE!");
+    // show next/back buttons
+    let nextBtn=document.createElement("button");
+    nextBtn.innerText="Next Level";
+    nextBtn.style.margin="10px";
+    nextBtn.onclick=function(){
+      level++;
+      startGame();
+      nextBtn.remove();
+      backBtn.remove();
+    };
+    let backBtn=document.createElement("button");
+    backBtn.innerText="Back";
+    backBtn.style.margin="10px";
+    backBtn.onclick=function(){window.location.href="index.html";};
+    document.body.appendChild(nextBtn);
+    document.body.appendChild(backBtn);
+  }
+}
+
+// controls
+document.addEventListener("keydown",e=>{
+  if(e.key==="ArrowLeft" && shipX>0) shipX-=10;
+  if(e.key==="ArrowRight" && shipX<canvas.width-40) shipX+=10;
+  if(e.key===" "){bullets.push({x:shipX+18,y:canvas.height-30});}
+});
+
+function startGame(){init();clearInterval(gameInterval);gameInterval=setInterval(update,30);}
+function goBack(){window.location.href="index.html";}
+startGame();
+</script>
+</body>
+</html>

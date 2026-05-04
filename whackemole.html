@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Whack-a-Mole</title>
+<style>
+  canvas { background:#eee; display:block; margin:20px auto; }
+  button { margin:5px; padding:10px; }
+</style>
+</head>
+<body>
+<canvas id="mole" width="400" height="400"></canvas>
+<div>
+  <button onclick="startGame()">Start</button>
+  <button onclick="restartGame()">Restart</button>
+  <button onclick="goBack()">Back</button>
+</div>
+<script>
+let canvas=document.getElementById("mole"),ctx=canvas.getContext("2d");
+let moleX,moleY,score,gameInterval;
+
+function init(){
+  score=0;
+  spawnMole();
+}
+
+function spawnMole(){
+  moleX=Math.floor(Math.random()*350);
+  moleY=Math.floor(Math.random()*350);
+}
+
+function draw(){
+  ctx.clearRect(0,0,400,400);
+  ctx.fillStyle="brown";
+  ctx.fillRect(moleX,moleY,50,50);
+
+  // Score display
+  ctx.fillStyle="black";
+  ctx.font="20px Arial";
+  ctx.fillText("Score: "+score,10,20);
+}
+
+canvas.addEventListener("click",e=>{
+  let rect=canvas.getBoundingClientRect();
+  let x=e.clientX-rect.left,y=e.clientY-rect.top;
+  if(x>moleX&&x<moleX+50&&y>moleY&&y<moleY+50){
+    score++;
+    spawnMole();
+  }
+});
+
+function startGame(){
+  init();
+  clearInterval(gameInterval);
+  gameInterval=setInterval(draw,100);
+}
+
+function restartGame(){startGame();}
+function goBack(){window.location.href="index.html";}
+</script>
+</body>
+</html>

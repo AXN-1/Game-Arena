@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Bubble Shooter</title>
+<style>
+  body { background:#111; font-family:Arial, sans-serif; text-align:center; }
+  canvas { background:linear-gradient(to bottom,#222,#000); display:block; margin:20px auto; border:3px solid #444; border-radius:10px; }
+  button {
+    margin:8px; padding:12px 20px;
+    border:none; border-radius:8px;
+    background:linear-gradient(45deg,#06f,#0ff);
+    color:white; font-size:16px; font-weight:bold;
+    cursor:pointer; transition:0.3s;
+  }
+  button:hover { box-shadow:0 0 15px #0ff; transform:scale(1.05); }
+</style>
+</head>
+<body>
+<canvas id="bubble" width="400" height="500"></canvas>
+<div>
+  <button onclick="startGame()">Start</button>
+  <button onclick="restartGame()">Restart</button>
+  <button onclick="goBack()">Back</button>
+</div>
+<script>
+let canvas=document.getElementById("bubble"),ctx=canvas.getContext("2d");
+let bubbles=[],shots=[],gameInterval,speedTimer;
+let shooterX=200; 
+let bubbleSpeed=1.5; 
+let spawnRate=0.02; // initial spawn chance
+let gameOver=false;
+
+function spawnBubble(){
+  let colors=["red","blue","green","yellow","purple"];
+  bubbles.push({
+    x:Math.random()*360+20,
+    y:0,
+    color:colors[Math.floor(Math.random()*colors.length)],
+    radius:20
+  });
+}
+
+function drawBubble(b){
+  let gradient=ctx.createRadialGradient(b.x-5,b.y-5,5,b.x,b.y,20);
+  gradient.addColorStop(0,"white");
+  gradient.addColorStop(0.3,b.color);
+  gradient.addColorStop(1,"black");
+  ctx.fillStyle=gradient;
+  ctx.beginPath();
+  ctx.arc(b.x,b.y,b.radius,0,Math.PI*2);
+  ctx.fill();
+}
+
+function drawShot(s){
+  ctx.fillStyle="white";
+  ctx.beginPath();
+  ctx.arc(s.x,s.y,5,0,Math.PI*2);
+  ctx.fill();
+}
+
+function drawShooter(){
+  ctx.fillStyle="cyan";
+  ctx.shadowColor="aqua";
+  ctx.shadowBlur=15;
+  ctx.fillRect(shooterX-20,480,40,20);
+  ctx.shadowBlur=0;
+}
+
+function update(){
+  if(gameOver){
+    ctx.clearRect(0,0,400,500);
+    ctx.fillStyle="red";
+    ctx.font="28px Arial";
+    ctx.fillText("GAME OVER!",120,250);
+    clearInterval(gameInterval);
+    clearInterval(speedTimer);
+    return;
+  }
+
+  ctx.clearRect(0,0,400,500);
+  drawShooter();
+
+  if(Math.random()<spawnRate) spawnBubble();
+
+  bubbles.forEach((b,i)=>{
+    b.y+=bubbleSpeed;
+    drawBubble(b);
+    if(b.y>480){ // bubble reached bottom
+      gameOver=true;
+    }
+  });
+
+  shots.forEach((s,i)=>{
+    s.y-=4;
+    drawShot(s);
+    bubbles.forEach((b,j)=>{
+      let dx=s.x-b.x,dy=s.y-b.y;
+      if(Math.sqrt(dx*dx+dy*dy)<b.radius){
+        bubbles.splice(j,1);
+        shots.splice(i,1);
+      }
+    });
+  });
+}
+
+// Mouse move controls shooter position
+canvas.addEventListener("mousemove",e=>{
+  let rect=canvas.getBoundingClientRect();
+  shooterX=e.clientX-rect.left;
+});
+
+// Click to shoot
+canvas.addEventListener("click",()=>{
+  if(!gameOver) shots.push({x:shooterX,y:480});
+});
+
+function startGame(){
+  clearInterval(gameInterval);
+  clearInterval(speedTimer);
+  bubbles=[];shots=[];gameOver=false;
+  bubbleSpeed=1.5;
+  spawnRate=0.02;
+  gameInterval=setInterval(update,30);
+  // gradually increase speed and spawn rate every 15s
+  speedTimer=setInterval(()=>{
+    bubbleSpeed+=0.3;
+    spawnRate+=0.01; // more bubbles appear
+  },15000);
+}
+function restartGame(){startGame();}
+function goBack(){window.location.href="index.html";}
+</script>
+</body>
+</html>

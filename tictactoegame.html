@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tic Tac Toe</title>
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    #board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 5px;
+    }
+    .cell {
+      background: #111;
+      border: 2px solid #fff;
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+    .cell.played {
+      transform: scale(1.2);
+      background: #333;
+    }
+    .cell.win {
+      background: gold;
+      color: black;
+      animation: glowWin 1s infinite alternate;
+    }
+    @keyframes glowWin {
+      from { box-shadow: 0 0 10px gold; }
+      to { box-shadow: 0 0 25px orange; }
+    }
+    .cell.draw {
+      animation: pulseDraw 1s infinite alternate;
+    }
+    @keyframes pulseDraw {
+      from { background: #444; }
+      to { background: #888; }
+    }
+
+    #status {
+      margin: 15px;
+      font-size: 20px;
+    }
+    .controls {
+      margin-top: 15px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #restartBtn { background: lime; }
+    #backBtn { background: red; color: #fff; }
+    button:hover { opacity: 0.8; }
+
+    /* Sparkle effect */
+    .sparkle {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .sparkle span {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: yellow;
+      border-radius: 50%;
+      animation: sparkleAnim 2s linear forwards;
+    }
+    @keyframes sparkleAnim {
+      from { transform: translateY(0) scale(1); opacity: 1; }
+      to { transform: translateY(100vh) scale(0.2); opacity: 0; }
+    }
+
+    /* Attractive Congratulations text */
+    #congrats {
+      position: fixed;
+      top: 40%;
+      font-size: 60px;
+      font-weight: bold;
+      color: gold;
+      text-shadow: 0 0 20px #fff, 0 0 40px gold, 0 0 60px orange;
+      display: none;
+      animation: glowText 2s infinite alternate, bounceText 1s infinite;
+    }
+    @keyframes glowText {
+      from { opacity: 0.8; }
+      to { opacity: 1; }
+    }
+    @keyframes bounceText {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+  </style>
+</head>
+<body>
+  <h1>Tic Tac Toe</h1>
+  <div id="board"></div>
+  <div id="status">Player X's turn</div>
+  <div class="controls">
+    <button id="restartBtn">Restart</button>
+    <button id="backBtn">Back</button>
+  </div>
+  <div id="congrats"></div>
+  <div class="sparkle" id="sparkle"></div>
+
+  <script>
+    const board = document.getElementById("board");
+    const statusEl = document.getElementById("status");
+    const restartBtn = document.getElementById("restartBtn");
+    const backBtn = document.getElementById("backBtn");
+    const congratsEl = document.getElementById("congrats");
+    const sparkleEl = document.getElementById("sparkle");
+
+    let cells = [];
+    let currentPlayer = "X";
+    let gameActive = true;
+    let sparkleInterval;
+
+    function createBoard() {
+      board.innerHTML = "";
+      cells = [];
+      currentPlayer = "X";
+      gameActive = true;
+      statusEl.textContent = "Player X's turn";
+      congratsEl.style.display = "none";
+      sparkleEl.innerHTML = "";
+      clearInterval(sparkleInterval);
+
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.dataset.index = i;
+        cell.addEventListener("click", handleCellClick);
+        board.appendChild(cell);
+        cells.push(cell);
+      }
+    }
+
+    function handleCellClick(e) {
+      const cell = e.target;
+      if (!gameActive || cell.textContent !== "") return;
+      cell.textContent = currentPlayer;
+      cell.classList.add("played");
+      setTimeout(() => cell.classList.remove("played"), 300);
+
+      if (checkWin()) {
+        statusEl.textContent = `Player ${currentPlayer} wins!`;
+        gameActive = false;
+        showWinEffect(currentPlayer);
+        return;
+      }
+      if (cells.every(c => c.textContent !== "")) {
+        statusEl.textContent = "It's a draw!";
+        gameActive = false;
+        cells.forEach(c => c.classList.add("draw"));
+        return;
+      }
+      currentPlayer = currentPlayer === "X" ? "O" : "X";
+      statusEl.textContent = `Player ${currentPlayer}'s turn`;
+    }
+
+    function checkWin() {
+      const winPatterns = [
+        [0,1,2],[3,4,5],[6,7,8], // rows
+        [0,3,6],[1,4,7],[2,5,8], // cols
+        [0,4,8],[2,4,6]          // diagonals
+      ];
+      return winPatterns.some(pattern => {
+        const [a,b,c] = pattern;
+        if (cells[a].textContent &&
+            cells[a].textContent === cells[b].textContent &&
+            cells[a].textContent === cells[c].textContent) {
+          [cells[a], cells[b], cells[c]].forEach(cell => cell.classList.add("win"));
+          return true;
+        }
+        return false;
+      });
+    }
+
+    function showWinEffect(winner) {
+      congratsEl.textContent = `🎉 Congratulations! ${winner} Won 🎉`;
+      congratsEl.style.display = "block";
+      // Continuous sparkles
+      sparkleInterval = setInterval(() => {
+        const s = document.createElement("span");
+        s.style.left = Math.random() * window.innerWidth + "px";
+        s.style.top = "-10px";
+        s.style.background = ["yellow","white","gold"][Math.floor(Math.random()*3)];
+        sparkleEl.appendChild(s);
+        setTimeout(() => s.remove(), 2000);
+      }, 100);
+    }
+
+    // Restart
+    restartBtn.addEventListener("click", createBoard);
+
+    // Back → always go to home page
+    backBtn.addEventListener("click", () => {
+      window.location.href = "index.html"; // apne home page ka file naam daalo
+    });
+
+    // Init
+    createBoard();
+  </script>
+</body>
+</html>

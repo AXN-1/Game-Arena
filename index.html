@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Game Arena</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar">
+      <ul>
+        <li><i class="fa-solid fa-house"></i><span><a href="index.html">Home</a></span></li>
+        <li><i class="fa-solid fa-magnifying-glass"></i><span>Search</span></li>
+        <li><i class="fa-solid fa-layer-group"></i><span>Categories</span></li>
+        <li><i class="fa-solid fa-user"></i><span>My Space</span></li>
+      </ul>
+    </div>
+
+ <!-- Hero Banner -->
+  <section class="hero">
+    <div class="hero-content">
+      <h2 id="hero-title">Snake Game</h2>
+      <p id="hero-desc">Eat, grow, and survive the classic arcade challenge!</p>
+      <a href="snakegame.html" class="play-btn">Play Now</a>
+    </div>
+    <script>
+      // Array of banners (image + text)
+      const banners = [
+   {
+    image: 'spaceinvader.jpg',
+    title: 'Space Invader',
+    desc: 'Let’s begin the fight against invaders!'
+  },
+      {
+    image: 'snake.jpg',
+    title: 'Snake Game',
+    desc: 'Eat, grow, and survive the classic arcade challenge!'
+  },
+  {
+    image: 'tictactoe.jpg',
+    title: 'Tic Tac Toe',
+    desc: 'Play the timeless X and O battle with friends!'
+  },
+  {
+    image: 'memorymatch.jpg',
+    title: 'Memory Match',
+    desc: 'Test your brain with fun card matching puzzles!'
+  },
+  {
+    image:'bubbleshooter.jpg',
+    title:'Bubble Shooter',
+    desc:'Time to shoot the bubble!'
+  },
+  {
+    image: 'flappybird.jpg',
+    title: 'Flappy Bird',
+    desc: 'Fly through pipes and test your reflexes!'
+  },
+];
+
+      let currentIndex = Math.floor(Math.random() * banners.length); // random start
+      const heroSection = document.querySelector('.hero');
+      const heroTitle = document.getElementById('hero-title');
+      const heroDesc = document.getElementById('hero-desc');
+
+      function changeSlide() {
+        const slide = banners[currentIndex];
+        heroSection.style.background = `url('${slide.image}') no-repeat center center/cover`;
+        heroTitle.textContent = slide.title;
+        heroDesc.textContent = slide.desc;
+
+        currentIndex = (currentIndex + 1) % banners.length;
+      }
+
+      // Initial random banner
+      changeSlide();
+
+      // Auto change every 5 seconds
+      setInterval(changeSlide, 5000);
+    </script>
+  </section>
+
+  <!-- Game Grid -->
+  <section class="new-section">
+    <h2>New on MySite</h2>
+    <div class="new-grid">
+      <div class="new-card">
+        <!-- FIXED: relative path instead of file:/// -->
+        <a href="snakegame.html">
+          <img src="snake.jpg" alt="Snake Game">
+          <h3>Snake Game</h3>
+        </a>
+      </div>
+      <div class="new-card">
+        <a href="tictactoegame.html">
+          <img src="tictactoe.jpg" alt="Tic Tac Toe">
+          <h3>Tic Tac Toe</h3>
+        </a>
+      </div>
+      <div class="new-card">
+        <a href="memorymatch.html">
+          <img src="memorymatch.jpg" alt="Memory Match">
+          <h3>Memory Match</h3>
+        </a>
+      </div>
+      <div class="new-card">
+        <a href="breakout.html">
+          <img src="breakout.jpg" alt="Break Out">
+          <h3>Break Out</h3>
+        </a>
+      </div>
+      <div class="new-card">
+        <a href="flappybird.html">
+          <img src="flappybird.jpg" alt="Flappy Bird">
+          <h3>Flappy Bird</h3>
+        </a>
+      </div>
+      <div class="new-card">
+        <a href="spaceinvader.html">
+          <img src="spaceinvader.jpg" alt="Space Invader">
+          <h3>Space Invader</h3>
+        </a>
+      </div>
+      <div class="new-card">
+        <a href="bubbleshooter.html">
+          <img src="bubbleshooter.jpg" alt="Bubble Shooter">
+          <h3>Bubble Shooter</h3>
+        </a>
+      </div>
+      <!-- aur cards add kar sakte ho -->
+    </div>
+  </section>
+    <section class="new-section">
+    <h2>Arcade Style</h2>
+    <div class="new-grid">
+      <div class="new-card">
+        <!-- FIXED: relative path instead of file:/// -->
+        <a href="snakegame.html">
+          <img src="snake.jpg" alt="Snake Game">
+          <h3>Snake Game</h3>
+        </a>
+      </div>
+      <div class="new-card">
+        <a href="breakout.html">
+          <img src="breakout.jpg" alt="Break Out">
+          <h3>Break Out</h3>
+        </a>
+      </div>
+      <div class="new-card">
+        <a href="flappybird.html">
+          <img src="flappybird.jpg" alt="Flappy Bird">
+          <h3>Flappy Bird</h3>
+        </a>
+      </div>
+      <div class="new-card">
+        <a href="spaceinvader.html">
+          <img src="spaceinvader.jpg" alt="Space Invader">
+          <h3>Space Invader</h3>
+        </a>
+      </div>
+      <div class="new-card">
+        <a href="bubbleshooter.html">
+          <img src="bubbleshooter.jpg" alt="Bubble Shooter">
+          <h3>Bubble Shooter</h3>
+        </a>
+      </div>
+      <!-- aur cards add kar sakte ho -->
+    </div>
+  </section>
+    <section class="new-section">
+    <h2>Puzzle Games</h2>
+    <div class="new-grid">
+      <div class="new-card">
+        <!-- FIXED: relative path instead of file:/// -->
+        <a href="tictactoegame.html">
+          <img src="tictactoe.jpg" alt="Tic Tac Toe">
+          <h3>Tic Tac Toe</h3>
+        </a>
+      </div>
+      <div class="new-card">
+        <a href="memorymatch.html">
+          <img src="memorymatch.jpg" alt="Memory Match">
+          <h3>Memory Match</h3>
+        </a>
+      </div>
+      <!-- aur cards add kar sakte ho -->
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2026 GAME ARENA | Designed with ❤️</p>
+  </footer>
+</body>
+</html>
